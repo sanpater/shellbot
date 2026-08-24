@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from bot.utils.logger import setup_logger
 from bot.services.db import init_db, close_db, db
 from bot.services.pty_manager import pty_manager
-from bot.handlers import register_all_handlers
 
 load_dotenv()
 logger = setup_logger()
@@ -38,16 +37,14 @@ async def main():
     await init_db(db_path)
     await ensure_admin_exists()
 
-    # Register handlers
-    register_all_handlers()
-
-    # Setup client
+    # Setup client using Smart Plugins
     client = Client(
         "vps_admin_bot",
         api_id=int(api_id) if api_id.isdigit() else api_id,
         api_hash=api_hash,
         bot_token=bot_token,
-        workdir="data"
+        workdir="data",
+        plugins=dict(root="bot.handlers")
     )
 
     stop_event = asyncio.Event()
