@@ -15,7 +15,9 @@ class Database:
             self.db_path = db_path
 
         # Ensure directory exists
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        dir_name = os.path.dirname(self.db_path)
+        if dir_name:
+            os.makedirs(dir_name, exist_ok=True)
 
         self._conn = await aiosqlite.connect(self.db_path)
         self._conn.row_factory = aiosqlite.Row
@@ -31,10 +33,6 @@ class Database:
         await self._conn.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 telegram_id INTEGER PRIMARY KEY,
-                hash TEXT,
-                is_auth INTEGER DEFAULT 0,
-                fails INTEGER DEFAULT 0,
-                lock_until REAL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -61,10 +59,10 @@ class Database:
         async with self._conn.execute('SELECT * FROM users WHERE telegram_id = ?', (telegram_id,)) as cursor:
             return await cursor.fetchone()
 
-    async def create_user(self, telegram_id: int, hash: Optional[str] = None):
+    async def create_user(self, telegram_id: int):
         await self._conn.execute(
-            'INSERT OR IGNORE INTO users (telegram_id, hash) VALUES (?, ?)',
-            (telegram_id, hash)
+            'INSERT OR IGNORE INTO users (telegram_id) VALUES (?)',
+            (telegram_id,)
         )
         await self._conn.commit()
 

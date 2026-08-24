@@ -18,7 +18,7 @@ async def ensure_admin_exists():
         if not admin_user:
             logger.info(f"Admin user {admin_id} not found in DB. Creating...")
             await db.create_user(admin_id)
-            logger.info(f"Admin user {admin_id} added. They must use /login <passphrase> to set their initial password.")
+            logger.info(f"Admin user {admin_id} added automatically from ADMIN_ID env var.")
 
 async def main():
     logger.info("Starting VPS Admin Bot...")

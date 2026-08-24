@@ -6,7 +6,6 @@ from functools import wraps
 from pyrogram.errors import FloodWait
 import logging
 from bot.services.db import db
-from bot.services.auth_service import auth_service
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +51,8 @@ def requires_auth(func):
 
         try:
             user = await db.get_user(user_id)
-            if not user or not user['is_auth']:
-                msg = "You are not authenticated. Please use /login <passphrase>."
+            if not user:
+                msg = "You are not authorized to use this bot."
                 if is_callback:
                     await message.answer(msg, show_alert=True)
                 else:
