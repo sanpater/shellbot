@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sys
 import signal
 from pyrogram import Client
 from dotenv import load_dotenv
@@ -23,6 +24,15 @@ async def ensure_admin_exists():
 async def main():
     logger.info("Starting VPS Admin Bot...")
 
+    # Check for required API credentials
+    api_id = os.environ.get('API_ID')
+    api_hash = os.environ.get('API_HASH')
+    bot_token = os.environ.get('BOT_TOKEN')
+
+    if not all([api_id, api_hash, bot_token]):
+        logger.error("Missing required Telegram API credentials (API_ID, API_HASH, BOT_TOKEN). Please set them in .env")
+        sys.exit(1)
+
     # Initialize DB
     db_path = os.environ.get('DB_PATH', 'data/bot.db')
     await init_db(db_path)
@@ -34,9 +44,9 @@ async def main():
     # Setup client
     client = Client(
         "vps_admin_bot",
-        api_id=os.environ.get('API_ID'),
-        api_hash=os.environ.get('API_HASH'),
-        bot_token=os.environ.get('BOT_TOKEN'),
+        api_id=int(api_id) if api_id.isdigit() else api_id,
+        api_hash=api_hash,
+        bot_token=bot_token,
         workdir="data"
     )
 

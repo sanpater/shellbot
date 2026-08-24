@@ -6,11 +6,14 @@ from typing import Optional, List, Dict, Any
 logger = logging.getLogger(__name__)
 
 class Database:
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+    def __init__(self):
+        self.db_path = "data/bot.db"
         self._conn: Optional[aiosqlite.Connection] = None
 
-    async def connect(self):
+    async def connect(self, db_path: str = None):
+        if db_path:
+            self.db_path = db_path
+
         # Ensure directory exists
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
 
@@ -114,14 +117,10 @@ class Database:
              return await cursor.fetchone()
 
 # Global database instance
-db: Optional[Database] = None
+db = Database()
 
-async def init_db(db_path: str):
-    global db
-    db = Database(db_path)
-    await db.connect()
+async def init_db(db_path: str = None):
+    await db.connect(db_path)
 
 async def close_db():
-    global db
-    if db:
-        await db.close()
+    await db.close()
