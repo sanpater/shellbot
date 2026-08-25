@@ -81,10 +81,6 @@ async def ctrld_cmd(client: Client, message: Message):
 async def shell_input(client: Client, message: Message):
     user_id = message.from_user.id
     session = pty_manager.get_session(user_id)
-    # Avoid circular imports with pending admin states
-    from bot.handlers.auth import pending_user_creation, pending_pass_reset
-    if user_id in pending_user_creation or user_id in pending_pass_reset:
-        return
 
     if session:
         session.write(message.text + "\n")
